@@ -1,0 +1,32 @@
+rules:
+  - rule:
+      glob:
+        - "!**/node_modules/**"
+        - "!**/.next/**"
+        - "!**/dist/**"
+        - "!**/build/**"
+        - "!**/.git/**"
+        - "!**/*.log"
+        - "!**/package-lock.json"
+        - "!**/yarn.lock"
+        - "!**/__pycache__/**"
+        - "!**/*.pyc"
+        - "!**/.venv/**"
+        - "!**/venv/**"
+  
+  # Allow access to environment files
+  - rule:
+      glob:
+        - "**/.env*"
+        - "**/env.example"
+      description: "Environment files are allowed for configuration"
+  
+  # Allow cat and other commands for file access
+  - rule:
+      description: "Allow cat commands and file access operations"
+      allow:
+        - "cat"
+        - "grep"
+        - "ls"
+        - "find"
+        - "file operations"

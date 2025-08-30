@@ -136,3 +136,4 @@ test_apis.py
 
 # Local development files
 start.sh
+node_modules

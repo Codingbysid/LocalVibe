@@ -34,6 +34,7 @@ export interface VibeOption {
   name: string
   emoji: string
   description: string
+  detailedDescription?: string
   color: string
 }
 

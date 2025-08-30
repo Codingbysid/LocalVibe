@@ -241,7 +241,7 @@ export default function Home() {
             
             <TrailDisplay 
               trail={currentTrail}
-              userLocation={userLocation}
+              userLocation={userLocation || undefined}
               selectedVibes={selectedVibes}
               onSaveTrail={handleSaveTrail}
               isSaved={isCurrentTrailSaved()}

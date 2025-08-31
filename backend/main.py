@@ -28,11 +28,52 @@ app.add_middleware(
 )
 
 # Initialize services
-google_places = GooglePlacesService()
-trail_model = TrailModel()
-gemini_narrative = GeminiNarrativeService()
-supabase = SupabaseService()
-mapbox_directions = MapboxDirectionsService()
+print("Initializing services...")
+try:
+    google_places = GooglePlacesService()
+    print("✓ Google Places service initialized")
+except Exception as e:
+    print(f"⚠ Google Places service failed: {e}")
+    google_places = None
+
+try:
+    trail_model = TrailModel()
+    print("✓ Trail model initialized")
+except Exception as e:
+    print(f"⚠ Trail model failed: {e}")
+    trail_model = None
+
+try:
+    gemini_narrative = GeminiNarrativeService()
+    print("✓ Gemini narrative service initialized")
+except Exception as e:
+    print(f"⚠ Gemini narrative service failed: {e}")
+    gemini_narrative = None
+
+try:
+    supabase = SupabaseService()
+    print("✓ Supabase service initialized")
+except Exception as e:
+    print(f"⚠ Supabase service failed: {e}")
+    supabase = None
+
+try:
+    mapbox_directions = MapboxDirectionsService()
+    print("✓ Mapbox directions service initialized")
+except Exception as e:
+    print(f"⚠ Mapbox directions service failed: {e}")
+    mapbox_directions = None
+
+print("All services initialization completed!")
+
+@app.on_event("startup")
+async def startup_event():
+    print("FastAPI application is starting up...")
+    print(f"Environment variables loaded: PORT={os.getenv('PORT', '8000')}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    print("FastAPI application is shutting down...")
 
 class TrailRequest(BaseModel):
     vibes: list[str]
@@ -78,13 +119,30 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "services": {
-        "google_places": "available",
-        "gemini": "available",
-        "trail_model": "available",
-        "supabase": "available" if supabase and supabase.client else "unavailable",
-        "mapbox_directions": "available"
-    }}
+    """Health check endpoint for Railway and other deployment platforms"""
+    try:
+        services_status = {
+            "google_places": "available" if google_places else "unavailable",
+            "gemini": "available" if gemini_narrative else "unavailable", 
+            "trail_model": "available" if trail_model else "unavailable",
+            "supabase": "available" if supabase and supabase.client else "unavailable",
+            "mapbox_directions": "available" if mapbox_directions else "unavailable"
+        }
+        
+        return {
+            "status": "healthy",
+            "message": "LocalVibe API is running",
+            "version": "1.0.0",
+            "services": services_status,
+            "port": os.getenv('PORT', '8000')
+        }
+    except Exception as e:
+        print(f"Health check error: {e}")
+        return {
+            "status": "unhealthy",
+            "message": f"Health check failed: {str(e)}",
+            "version": "1.0.0"
+        }
 
 @app.post("/generate-trail", response_model=TrailResponse)
 async def generate_trail(request: TrailRequest):
